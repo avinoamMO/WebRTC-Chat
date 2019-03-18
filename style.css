@@ -1,0 +1,33 @@
+.chat_container {
+  display: grid;
+  grid-template-areas:
+    "r" "l"
+    "n";
+
+  grid-template-columns: auto auto;
+  grid-template-rows: auto;
+  grid-column-gap: 2px;
+}
+
+#localVideoContainer {
+  grid-area: "l";
+}
+
+#remoteVideoContainer {
+  grid-area: "r";
+}
+
+#localVideo {
+  width: 50%;
+  height: 50%;
+}
+#remoteVideo {
+  width: 50%;
+  height: 50%;
+}
+
+#notifications_box {
+  grid-area: "n";
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
