@@ -8,14 +8,16 @@
 
   </head>
 <body>
-                <video id="remoteVideo" autoplay></video>     
-                <video id="localVideo" autoplay muted></video>                      
-                <textarea readonly id="chatBox"></textarea>
-                <textarea readonly id="notificationsBox"></textarea>
-                <input type="text" id="chat_text_input" placeholder="Send a message.."/>
-                <button onclick="sendChatMessage()">Send</button>
-            </span>
-        
- 
+<div class = "container">
+<div class = "remoteVideo"><video id="remoteVideo" autoplay></video></div>       
+<div class = "localVideo"><video id="localVideo" autoplay muted></video></div>
+<div class = "chatBox">
+  <textarea readonly id="chatBox"></textarea>
+  <input type="text" id="chat_text_input" placeholder="Send a message.."/><button onclick="sendChatMessage()">Send</button>
+</div>
+<div class = "notificationsBox"><textarea readonly id="notificationsBox"></textarea></div>
+
+
+</div>
   <script src="script.js"></script>
 </body>
