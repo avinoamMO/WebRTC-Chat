@@ -51,9 +51,9 @@ drone.on("open", error => {
   });
   room.on("member_join", member => {
     console.log();
-    document.getElementById("chatBox").value += member.clientData.name +=
+    document.getElementById("notificationsBox").value += member.clientData.name +=
       " joined";
-    document.getElementById("chatBox").value += String.fromCharCode(13, 10);
+    document.getElementById("notificationsBox").value += String.fromCharCode(13, 10);
   });
   room.on("message", message => {
     console.log(message);
