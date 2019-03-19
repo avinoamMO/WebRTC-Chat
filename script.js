@@ -3,13 +3,13 @@
 // 1) https://www.scaledrone.com/docs/api-clients/javascript
 // 2) https://www.html5rocks.com/en/tutorials/webrtc/basics/
 // 3) RTCPeerConnection: https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
-
+// 4) https://webrtcglossary.com
 let room, RTCpc;
 let roomName = "observable-" + prompt("Enter room name", "defaultRoom");
 let userName = prompt("Hey there, what's your name?", "Incognito");
 
 // One instance of Scaledrone establishes a single connection.
-var drone = new ScaleDrone("yiS12Ts5RdNhebyM", {
+let drone = new ScaleDrone("yiS12Ts5RdNhebyM", {
   data: {
     name: userName
   }
@@ -36,8 +36,7 @@ drone.on("reconnect", () => {
 drone.on("open", error => {
   if (error) return console.error(error);
 
-  // Subscribe after the 'open' or 'authenticate' event from the Scaledrone instance
-
+  // Subscribe to a room.
   room = drone.subscribe(roomName);
 
   room.on("open", error => {
@@ -49,11 +48,11 @@ drone.on("open", error => {
   // Event members is invoked once upon connecting to a room and returns array with member list (including client).
   room.on("members", members => {
     console.log("MEMBERS", members);
-    const isOfferer = members.length === 2;
+    const isOfferer = members.length === 2; // Returns boolean, where true means the client is the second person in the room.
     startWebRTC(isOfferer);
   });
 
-  // member_join is invoked whenver someone joins the room and provides data on new member.
+  // member_join is invoked whenver someone joins the room.
   room.on("member_join", member => {
     let joinMessage = (member.clientData.name += " joined");
     joinMessage += String.fromCharCode(13, 10);
@@ -68,7 +67,7 @@ drone.on("open", error => {
 
   room.on("message", message => {
     if (message.data.data) {
-      // Checks if message has text intended for chat
+      // Checks if message is containing meta-data or a chat message.
       document.getElementById("chatBox").value += message.data.user += ": ";
       document.getElementById("chatBox").value += message.data.data;
       document.getElementById("chatBox").value += String.fromCharCode(13, 10);
@@ -90,7 +89,7 @@ function startWebRTC(isOfferer) {
     }
   };
 
-  //
+  // Handshake handling with respect to user being the first party in the room or not.
   if (isOfferer) {
     RTCpc.onnegotiationneeded = () => {
       RTCpc.createOffer()
@@ -99,7 +98,7 @@ function startWebRTC(isOfferer) {
     };
   }
 
-  // When a remote stream arrives display it in the #remoteVideo element
+  // Stream video from remote peer to video element on page.
   RTCpc.ontrack = event => {
     const stream = event.streams[0];
     if (!remoteVideo.srcObject || remoteVideo.srcObject.id !== stream.id) {
@@ -107,6 +106,7 @@ function startWebRTC(isOfferer) {
     }
   };
 
+// Capture video stream from local machine's webcam.
   navigator.mediaDevices
     .getUserMedia({
       audio: true,
@@ -121,17 +121,18 @@ function startWebRTC(isOfferer) {
 
   // Listen to signaling data from Scaledrone
   room.on("data", (message, client) => {
-    // Message was sent by us
-    if (client.id === drone.clientId) {
+
+    
+    if (client.id === drone.clientId) { // If message was sent by us, do nothing.
       return;
     }
 
     if (message.sdp) {
-      // This is called after receiving an offer or answer from another peer
+      // Handshake handling
       RTCpc.setRemoteDescription(
         new RTCSessionDescription(message.sdp),
         () => {
-          // When receiving an offer lets answer it
+          // When receiving an offer, answer it
           if (RTCpc.remoteDescription.type === "offer") {
             RTCpc.createAnswer()
               .then(localDescCreated)
@@ -150,8 +151,15 @@ function startWebRTC(isOfferer) {
     }
   });
 }
+    function localDescCreated(desc) { //Handshake handling
+      RTCpc.setLocalDescription(
+        desc,
+        () => sendMessage({ sdp: RTCpc.localDescription }),
+        onError
+      );
+    }
 
-function sendChatMessage() {
+function sendChatMessage() { // Send text message + userName
   drone.publish({
     room: `${roomName}`,
     message: {
@@ -161,13 +169,6 @@ function sendChatMessage() {
   });
 }
 
-function localDescCreated(desc) {
-  RTCpc.setLocalDescription(
-    desc,
-    () => sendMessage({ sdp: RTCpc.localDescription }),
-    onError
-  );
-}
 
 function onSuccess() {}
 function onError(error) {
