@@ -1,13 +1,14 @@
 // This script is using WebRTC for p2p communications and ScaleDrone to for singaling.
-// Docs: 
+// Docs:
 // 1) https://www.scaledrone.com/docs/api-clients/javascript
 // 2) https://www.html5rocks.com/en/tutorials/webrtc/basics/
+// 3) RTCPeerConnection: https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
 
 let room, RTCpc;
 let roomName = "observable-" + prompt("Enter room name", "defaultRoom");
 let userName = prompt("Hey there, what's your name?", "Incognito");
-// If no location hash, generate one pseudo randomly.
 
+// One instance of Scaledrone establishes a single connection.
 var drone = new ScaleDrone("yiS12Ts5RdNhebyM", {
   data: {
     name: userName
@@ -22,36 +23,52 @@ const configuration = {
   ]
 };
 
+drone.on("error", error => {
+  console.log(error);
+});
+
+// 'reconnect' event indicates reconnection occured succesfully.
+drone.on("reconnect", () => {
+  console.log("reconnected");
+});
+
+// 'open' event indicates a connection has been opened.
 drone.on("open", error => {
   if (error) return console.error(error);
 
+  // Subscribe after the 'open' or 'authenticate' event from the Scaledrone instance
+
   room = drone.subscribe(roomName);
+
   room.on("open", error => {
     if (error) {
       onError(error);
     }
   });
 
+  // Event members is invoked once upon connecting to a room and returns array with member list (including client).
   room.on("members", members => {
     console.log("MEMBERS", members);
-    const isOfferer = members.length === 2; 
+    const isOfferer = members.length === 2;
     startWebRTC(isOfferer);
   });
 
+  // member_join is invoked whenver someone joins the room and provides data on new member.
   room.on("member_join", member => {
-    let joinMessage = member.clientData.name += " joined"
+    let joinMessage = (member.clientData.name += " joined");
     joinMessage += String.fromCharCode(13, 10);
-    document.getElementById("notificationsBox").value += joinMessage
-      });
-  
+    document.getElementById("notificationsBox").value += joinMessage;
+  });
+
   room.on("member_leave", member => {
-    let leftMessage = member.clientData.name += " left" 
+    let leftMessage = (member.clientData.name += " left");
     leftMessage += String.fromCharCode(13, 10);
-    document.getElementById("notificationsBox").value += leftMessage
+    document.getElementById("notificationsBox").value += leftMessage;
   });
 
   room.on("message", message => {
-     if (message.data.data) {
+    if (message.data.data) {
+      // Checks if message has text intended for chat
       document.getElementById("chatBox").value += message.data.user += ": ";
       document.getElementById("chatBox").value += message.data.data;
       document.getElementById("chatBox").value += String.fromCharCode(13, 10);
@@ -62,27 +79,18 @@ drone.on("open", error => {
   });
 });
 
-function sendChatMessage() {
-  drone.publish({
-    room: `${roomName}`,
-    message: {
-      data: document.getElementById("chat_text_input").value,
-      user: userName
-    }
-  });
-}
-
 function startWebRTC(isOfferer) {
+  // instances of RTCPeerConnection represent a connection between the local device and a remote peer.
   RTCpc = new RTCPeerConnection(configuration);
 
-  //
+  // This event occurs when the local ICE agent needs to deliver a message to the other peer through a signaling server.
   RTCpc.onicecandidate = event => {
     if (event.candidate) {
       sendMessage({ candidate: event.candidate });
     }
   };
 
-  // 
+  //
   if (isOfferer) {
     RTCpc.onnegotiationneeded = () => {
       RTCpc.createOffer()
@@ -139,6 +147,16 @@ function startWebRTC(isOfferer) {
         onSuccess,
         onError
       );
+    }
+  });
+}
+
+function sendChatMessage() {
+  drone.publish({
+    room: `${roomName}`,
+    message: {
+      data: document.getElementById("chat_text_input").value,
+      user: userName
     }
   });
 }
