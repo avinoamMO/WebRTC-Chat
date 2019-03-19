@@ -1,26 +1,18 @@
-// This script is relying on ScaleDrone service to substitute independent singaling server.
-// Docs: https://www.scaledrone.com/docs/api-clients/javascript
+// This script is using WebRTC for p2p communications and ScaleDrone to for singaling.
+// Docs: 
+// 1) https://www.scaledrone.com/docs/api-clients/javascript
+// 2) https://www.html5rocks.com/en/tutorials/webrtc/basics/
 
-let room;
-let pc;
-let userName = prompt("Hey there, what's your name?", "Incognito");
+let room, RTCpc;
 let roomName = "observable-" + prompt("Enter room name", "defaultRoom");
-
+let userName = prompt("Hey there, what's your name?", "Incognito");
 // If no location hash, generate one pseudo randomly.
-if (!location.hash) {
-  location.hash = Math.floor(Math.random() * 0xffffff).toString(16);
-}
 
 var drone = new ScaleDrone("yiS12Ts5RdNhebyM", {
   data: {
     name: userName
   }
 });
-
-// Prefix room name with 'observable-'
-// const roomHash = location.hash.substring(1);
-const roomHash = "moishe";
-// const roomName = "observable-" + roomHash;
 
 const configuration = {
   iceServers: [
@@ -40,25 +32,26 @@ drone.on("open", error => {
     }
   });
 
-  // We're connected to the room and received an array of 'members'
-  // connected to the room (including us). Signaling server is ready.
   room.on("members", members => {
     console.log("MEMBERS", members);
-
-    // If we are the second user to connect to the room we will be creating the offer
-    const isOfferer = members.length === 2;
+    const isOfferer = members.length === 2; 
     startWebRTC(isOfferer);
   });
-  room.on("member_join", member => {
-    console.log();
-    document.getElementById("notificationsBox").value += member.clientData.name +=
-      " joined";
-    document.getElementById("notificationsBox").value += String.fromCharCode(13, 10);
-  });
-  room.on("message", message => {
-    console.log(message);
 
-    if (message.data.data) {
+  room.on("member_join", member => {
+    let joinMessage = member.clientData.name += " joined"
+    joinMessage += String.fromCharCode(13, 10);
+    document.getElementById("notificationsBox").value += joinMessage
+      });
+  
+  room.on("member_leave", member => {
+    let leftMessage = member.clientData.name += " left" 
+    leftMessage += String.fromCharCode(13, 10);
+    document.getElementById("notificationsBox").value += leftMessage
+  });
+
+  room.on("message", message => {
+     if (message.data.data) {
       document.getElementById("chatBox").value += message.data.user += ": ";
       document.getElementById("chatBox").value += message.data.data;
       document.getElementById("chatBox").value += String.fromCharCode(13, 10);
@@ -80,27 +73,26 @@ function sendChatMessage() {
 }
 
 function startWebRTC(isOfferer) {
-  pc = new RTCPeerConnection(configuration);
+  RTCpc = new RTCPeerConnection(configuration);
 
-  // 'onicecandidate' notifies us whenever an ICE agent needs to deliver a
-  // message to the other peer through the signaling server
-  pc.onicecandidate = event => {
+  //
+  RTCpc.onicecandidate = event => {
     if (event.candidate) {
       sendMessage({ candidate: event.candidate });
     }
   };
 
-  // If user is offerer let the 'negotiationneeded' event create the offer
+  // 
   if (isOfferer) {
-    pc.onnegotiationneeded = () => {
-      pc.createOffer()
+    RTCpc.onnegotiationneeded = () => {
+      RTCpc.createOffer()
         .then(localDescCreated)
         .catch(onError);
     };
   }
 
   // When a remote stream arrives display it in the #remoteVideo element
-  pc.ontrack = event => {
+  RTCpc.ontrack = event => {
     const stream = event.streams[0];
     if (!remoteVideo.srcObject || remoteVideo.srcObject.id !== stream.id) {
       remoteVideo.srcObject = stream;
@@ -116,7 +108,7 @@ function startWebRTC(isOfferer) {
       // Display your local video in #localVideo element
       localVideo.srcObject = stream;
       // Add your stream to be sent to the conneting peer
-      stream.getTracks().forEach(track => pc.addTrack(track, stream));
+      stream.getTracks().forEach(track => RTCpc.addTrack(track, stream));
     }, onError);
 
   // Listen to signaling data from Scaledrone
@@ -128,12 +120,12 @@ function startWebRTC(isOfferer) {
 
     if (message.sdp) {
       // This is called after receiving an offer or answer from another peer
-      pc.setRemoteDescription(
+      RTCpc.setRemoteDescription(
         new RTCSessionDescription(message.sdp),
         () => {
           // When receiving an offer lets answer it
-          if (pc.remoteDescription.type === "offer") {
-            pc.createAnswer()
+          if (RTCpc.remoteDescription.type === "offer") {
+            RTCpc.createAnswer()
               .then(localDescCreated)
               .catch(onError);
           }
@@ -142,7 +134,7 @@ function startWebRTC(isOfferer) {
       );
     } else if (message.candidate) {
       // Add the new ICE candidate to our connections remote description
-      pc.addIceCandidate(
+      RTCpc.addIceCandidate(
         new RTCIceCandidate(message.candidate),
         onSuccess,
         onError
@@ -152,9 +144,9 @@ function startWebRTC(isOfferer) {
 }
 
 function localDescCreated(desc) {
-  pc.setLocalDescription(
+  RTCpc.setLocalDescription(
     desc,
-    () => sendMessage({ sdp: pc.localDescription }),
+    () => sendMessage({ sdp: RTCpc.localDescription }),
     onError
   );
 }
