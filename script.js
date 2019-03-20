@@ -65,19 +65,18 @@ drone.on("open", error => {
     let leftMessage = (member.clientData.name += " left");
     leftMessage += String.fromCharCode(13, 10);
     document.getElementById("notificationsBox").value += leftMessage;
-    console.log(remoteVideo)
+    console.log(remoteVideo);
   });
 
   room.on("message", message => {
     // Checks if message is containing meta-data or a chat message.
     if (message.data.data) {
       // If it's a chat message, post to chatBox element.
-      document.getElementById("chatBox").value += message.data.user += ": ";
-      document.getElementById("chatBox").value += message.data.data;
-      document.getElementById("chatBox").value += String.fromCharCode(13, 10);
-      document.getElementById("chatBox").scrollTop = document.getElementById(
-        "chatBox"
-      ).scrollHeight;
+      let chatBox = document.getElementById("chatBox");
+      chatBox.value += message.data.user += ": ";
+      chatBox.value += message.data.data;
+      chatBox.value += String.fromCharCode(13, 10);
+      chatBox.scrollTop = document.getElementById("chatBox").scrollHeight;
     }
   });
 });
