@@ -1,10 +1,11 @@
-// This script is using WebRTC for p2p communications and ScaleDrone to for singaling.
+// This script is using WebRTC for p2p streaming and ScaleDrone for singaling.
 // Docs:
 // 1) https://www.scaledrone.com/docs/api-clients/javascript
 // 2) https://www.html5rocks.com/en/tutorials/webrtc/basics/
 // 3) RTCPeerConnection: https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
 // 4) https://webrtcglossary.com
-let room, RTCpc;
+
+let room, peerConnection;
 let roomName = "observable-" + prompt("Enter room name", "defaultRoom");
 let userName = prompt("Hey there, what's your name?", "Incognito");
 
@@ -66,8 +67,9 @@ drone.on("open", error => {
   });
 
   room.on("message", message => {
+    // Checks if message is containing meta-data or a chat message.
     if (message.data.data) {
-      // Checks if message is containing meta-data or a chat message.
+      // If it's a chat message, post to chatBox element.
       document.getElementById("chatBox").value += message.data.user += ": ";
       document.getElementById("chatBox").value += message.data.data;
       document.getElementById("chatBox").value += String.fromCharCode(13, 10);
@@ -80,10 +82,10 @@ drone.on("open", error => {
 
 function startWebRTC(isOfferer) {
   // instances of RTCPeerConnection represent a connection between the local device and a remote peer.
-  RTCpc = new RTCPeerConnection(configuration);
+  peerConnection = new RTCPeerConnection(configuration);
 
   // This event occurs when the local ICE agent needs to deliver a message to the other peer through a signaling server.
-  RTCpc.onicecandidate = event => {
+  peerConnection.onicecandidate = event => {
     if (event.candidate) {
       sendMessage({ candidate: event.candidate });
     }
@@ -91,22 +93,23 @@ function startWebRTC(isOfferer) {
 
   // Handshake handling with respect to user being the first party in the room or not.
   if (isOfferer) {
-    RTCpc.onnegotiationneeded = () => {
-      RTCpc.createOffer()
+    peerConnection.onnegotiationneeded = () => {
+      peerConnection
+        .createOffer()
         .then(localDescCreated)
         .catch(onError);
     };
   }
 
   // Stream video from remote peer to video element on page.
-  RTCpc.ontrack = event => {
+  peerConnection.ontrack = event => {
     const stream = event.streams[0];
     if (!remoteVideo.srcObject || remoteVideo.srcObject.id !== stream.id) {
       remoteVideo.srcObject = stream;
     }
   };
 
-// Capture video stream from local machine's webcam.
+  // Capture video stream from local machine's webcam.
   navigator.mediaDevices
     .getUserMedia({
       audio: true,
@@ -116,25 +119,27 @@ function startWebRTC(isOfferer) {
       // Display your local video in #localVideo element
       localVideo.srcObject = stream;
       // Add your stream to be sent to the conneting peer
-      stream.getTracks().forEach(track => RTCpc.addTrack(track, stream));
+      stream
+        .getTracks()
+        .forEach(track => peerConnection.addTrack(track, stream));
     }, onError);
 
   // Listen to signaling data from Scaledrone
   room.on("data", (message, client) => {
-
-    
-    if (client.id === drone.clientId) { // If message was sent by us, do nothing.
+    if (client.id === drone.clientId) {
+      // If message was sent by us, do nothing.
       return;
     }
 
     if (message.sdp) {
       // Handshake handling
-      RTCpc.setRemoteDescription(
+      peerConnection.setRemoteDescription(
         new RTCSessionDescription(message.sdp),
         () => {
           // When receiving an offer, answer it
-          if (RTCpc.remoteDescription.type === "offer") {
-            RTCpc.createAnswer()
+          if (peerConnection.remoteDescription.type === "offer") {
+            peerConnection
+              .createAnswer()
               .then(localDescCreated)
               .catch(onError);
           }
@@ -143,7 +148,7 @@ function startWebRTC(isOfferer) {
       );
     } else if (message.candidate) {
       // Add the new ICE candidate to our connections remote description
-      RTCpc.addIceCandidate(
+      peerConnection.addIceCandidate(
         new RTCIceCandidate(message.candidate),
         onSuccess,
         onError
@@ -151,15 +156,17 @@ function startWebRTC(isOfferer) {
     }
   });
 }
-    function localDescCreated(desc) { //Handshake handling
-      RTCpc.setLocalDescription(
-        desc,
-        () => sendMessage({ sdp: RTCpc.localDescription }),
-        onError
-      );
-    }
+function localDescCreated(desc) {
+  //Handshake handling
+  peerConnection.setLocalDescription(
+    desc,
+    () => sendMessage({ sdp: peerConnection.localDescription }),
+    onError
+  );
+}
 
-function sendChatMessage() { // Send text message + userName
+function sendChatMessage() {
+  // Send text message + userName
   drone.publish({
     room: `${roomName}`,
     message: {
@@ -168,7 +175,6 @@ function sendChatMessage() { // Send text message + userName
     }
   });
 }
-
 
 function onSuccess() {}
 function onError(error) {
