@@ -40,7 +40,6 @@ drone.on("open", error => {
 
   // Subscribe to a room.
   room = drone.subscribe(roomName);
-
   room.on("open", error => {
     if (error) {
       onError(error);
@@ -166,14 +165,17 @@ function localDescCreated(desc) {
   );
 }
 
+if (event.keyCode === 13) sendChatMessage(); // TODO: Make this work
+
 function sendChatMessage() {
-  // Send text message + userName
+  
   drone.publish({
     room: `${roomName}`,
     message: {
       data: document.getElementById("chat_text_input").value,
       user: userName
     }
+    //TODO: Clear user input field.
   });
 }
 

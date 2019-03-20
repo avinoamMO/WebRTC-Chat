@@ -1,25 +1,25 @@
 .container {
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: 2fr 1fr;
   grid-template-rows: 4fr 2fr 1fr 1fr;
   grid-template-areas:
-    "r r r l l l"
-    "r r r l l l"
-    "r r r n n n"
-    "c c c c c c";
+    "r l"
+    "r n"
+    "c c";
   grid-gap: 3px;
 }
 
 .remoteVideo {
-  object-fit: fill;
   grid-area: r;
+  display: grid;
+  align-content: center;
 }
 .localVideo {
   object-fit: fill;
-
   grid-area: l;
 }
+
 .notificationsBox {
   background-color: red;
   grid-area: n;
@@ -29,7 +29,7 @@
   grid-area: c;
 }
 textarea {
-  width: 100%;
+  width: -webkit-fill-available; 
   height: 100%;
 }
 video {
@@ -38,4 +38,10 @@ video {
 }
 input {
   width: 95%;
+}
+
+.header-title {
+  background-color: #16a085;
+  color: #fff;
+  padding: 10px;
 }

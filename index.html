@@ -12,6 +12,7 @@
   <body>
     <div class="container">
       <div class="remoteVideo">
+        <div class="header-title">Avinoam</div>
         <video
           id="remoteVideo"
           autoplay
@@ -21,7 +22,12 @@
         ></video>
       </div>
       <div class="localVideo">
+        <div class="header-title">Moshiko</div>
         <video id="localVideo" autoplay muted></video>
+      </div>
+      <div class="notificationsBox">
+        <div class="header-title">Notifications</div>
+        <textarea readonly id="notificationsBox"></textarea>
       </div>
       <div class="chatBox">
         <textarea readonly id="chatBox"></textarea>
@@ -30,9 +36,6 @@
           id="chat_text_input"
           placeholder="Send a message.."
         /><button onclick="sendChatMessage()">Send</button>
-      </div>
-      <div class="notificationsBox">
-        <textarea readonly id="notificationsBox"></textarea>
       </div>
     </div>
     <script src="script.js"></script>
