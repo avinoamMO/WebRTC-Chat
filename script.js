@@ -92,7 +92,7 @@ function startWebRTC(isOfferer) {
   // This event occurs when the local ICE agent needs to deliver a message to the other peer through a signaling server.
   peerConnection.onicecandidate = event => {
     if (event.candidate) {
-      sendMessage({ candidate: event.candidate });
+      SendMetaMessage({ candidate: event.candidate });
     }
   };
 
@@ -165,7 +165,7 @@ function localDescCreated(desc) {
   //Handshake handling
   peerConnection.setLocalDescription(
     desc,
-    () => sendMessage({ sdp: peerConnection.localDescription }),
+    () => SendMetaMessage({ sdp: peerConnection.localDescription }),
     onError
   );
 }
@@ -184,10 +184,10 @@ function sendChatMessage() {
 function onSuccess() {}
 function onError(error) {
   console.error(error);
-}
+  }
 
 // Send signaling data via Scaledrone
-function sendMessage(message) {
+function SendMetaMessage(message) {
   drone.publish({
     room: roomName,
     message
