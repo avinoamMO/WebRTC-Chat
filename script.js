@@ -38,7 +38,7 @@ drone.on("reconnect", () => {
 drone.on("open", error => {
   if (error) return console.error(error);
 
-  // Subscribe to a room.
+  // Subscribe to the room specified by the user.
   room = drone.subscribe(roomName);
   room.on("open", error => {
     if (error) {
@@ -78,6 +78,13 @@ drone.on("open", error => {
       chatBox.scrollTop = document.getElementById("chatBox").scrollHeight;
     }
   });
+});
+
+var keyPress = document.getElementById("chat_text_input");
+keyPress.addEventListener("keyup", function(event) {
+  if (event.keyCode === 13) {
+  }
+  document.getElementById("sendMsgBtn").click();
 });
 
 function startWebRTC(isOfferer) {
@@ -165,10 +172,7 @@ function localDescCreated(desc) {
   );
 }
 
-if (event.keyCode === 13) sendChatMessage(); // TODO: Make this work
-
 function sendChatMessage() {
-  
   drone.publish({
     room: `${roomName}`,
     message: {

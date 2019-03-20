@@ -13,7 +13,11 @@
     <div class="container">
       <div class="remoteVideo">
         <div class="header-title">Peer</div>
-        <video id="remoteVideo" autoplay poster="./assets/waitingforuser.png"></video>
+        <video
+          id="remoteVideo"
+          autoplay
+          poster="./assets/waitingforuser.png"
+        ></video>
       </div>
       <div class="localVideo">
         <div class="header-title">Local</div>
@@ -24,13 +28,13 @@
         <textarea readonly id="notificationsBox"></textarea>
       </div>
       <div class="chatBox">
-          <div class="header-title">Chat Box</div>
+        <div class="header-title">Chat Box</div>
         <textarea readonly id="chatBox"></textarea>
         <input
           type="text"
           id="chat_text_input"
           placeholder="Send a message.."
-        /><button onclick="sendChatMessage()">Send</button>
+        /><button id ="sendMsgBtn" onclick="sendChatMessage()">Send</button>
       </div>
     </div>
     <script src="script.js"></script>
