@@ -82,9 +82,7 @@ drone.on("open", error => {
 
 var keyPress = document.getElementById("chat_text_input");
 keyPress.addEventListener("keyup", function(event) {
-  if (event.keyCode === 13) {
-  }
-  document.getElementById("sendMsgBtn").click();
+  if (event.keyCode === 13) document.getElementById("sendMsgBtn").click();
 });
 
 function startWebRTC(isOfferer) {
@@ -179,8 +177,8 @@ function sendChatMessage() {
       data: document.getElementById("chat_text_input").value,
       user: userName
     }
-    //TODO: Clear user input field.
   });
+  document.getElementById("chat_text_input").value = " "; //Clear chat input box
 }
 
 function onSuccess() {}
