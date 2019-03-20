@@ -2,7 +2,7 @@
   height: 100%;
   display: grid;
   grid-template-columns: 2fr 1fr;
-  grid-template-rows: 4fr 2fr 1fr 1fr;
+  grid-template-rows: 3fr 2fr 1fr;
   grid-template-areas:
     "r l"
     "r n"
@@ -33,8 +33,8 @@ textarea {
   height: 100%;
 }
 video {
-  width: 100% !important;
-  height: auto !important;
+  width: 100% ;
+  height: auto ;
 }
 input {
   width: 95%;
