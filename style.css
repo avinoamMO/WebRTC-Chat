@@ -12,11 +12,11 @@
 
 .remoteVideo {
   grid-area: r;
-  display: grid;
-  align-content: center;
+}
+#remoteVideo {
+  max-height: 750px;
 }
 .localVideo {
-  object-fit: fill;
   grid-area: l;
 }
 
@@ -29,12 +29,12 @@
   grid-area: c;
 }
 textarea {
-  width: -webkit-fill-available; 
+  width: -webkit-fill-available;
   height: 100%;
 }
 video {
   width: 100%;
-  height: auto 
+  height: auto;
 }
 input {
   width: 95%;
