@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <script type='text/javascript' src='https://cdn.scaledrone.com/scaledrone.min.js'></script>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="style.css">
-
+  <head>
+    <script
+      type="text/javascript"
+      src="https://cdn.scaledrone.com/scaledrone.min.js"
+    ></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="style.css" />
   </head>
-<body>
-<div class = "container">
-<div class = "remoteVideo"><video id="remoteVideo" autoplay></video></div>       
-<div class = "localVideo"><video id="localVideo" autoplay muted></video></div>
-<div class = "chatBox">
-  <textarea readonly id="chatBox"></textarea>
-  <input type="text" id="chat_text_input" placeholder="Send a message.."/><button onclick="sendChatMessage()">Send</button>
-</div>
-<div class = "notificationsBox"><textarea readonly id="notificationsBox"></textarea></div>
-
-
-</div>
-  <script src="script.js"></script>
-</body>
+  <body>
+    <div class="container">
+      <div class="remoteVideo">
+        <video
+          id="remoteVideo"
+          autoplay
+          poster="./assets/waitingforuser.png"
+          allowfullscreen
+          preload="width 200"
+        ></video>
+      </div>
+      <div class="localVideo">
+        <video id="localVideo" autoplay muted></video>
+      </div>
+      <div class="chatBox">
+        <textarea readonly id="chatBox"></textarea>
+        <input
+          type="text"
+          id="chat_text_input"
+          placeholder="Send a message.."
+        /><button onclick="sendChatMessage()">Send</button>
+      </div>
+      <div class="notificationsBox">
+        <textarea readonly id="notificationsBox"></textarea>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

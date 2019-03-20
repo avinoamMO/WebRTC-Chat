@@ -1,4 +1,5 @@
 // This script is using WebRTC for p2p streaming and ScaleDrone for singaling.
+// Based on tutorial's source code here: https://github.com/ScaleDrone/webrtc
 // Docs:
 // 1) https://www.scaledrone.com/docs/api-clients/javascript
 // 2) https://www.html5rocks.com/en/tutorials/webrtc/basics/
@@ -7,9 +8,9 @@
 
 let room, peerConnection;
 let roomName = "observable-" + prompt("Enter room name", "defaultRoom");
-let userName = prompt("Hey there, what's your name?", "Incognito");
+let userName = prompt("Hey there, what's your name?", "Incognito") || "no_name";
 
-// One instance of Scaledrone establishes a single connection.
+// One instance of Scaledrone establishes a single connection, takes parameter 'CHANNEL_ID_FROM_DASHBOARD'.
 let drone = new ScaleDrone("yiS12Ts5RdNhebyM", {
   data: {
     name: userName
@@ -56,7 +57,7 @@ drone.on("open", error => {
   // member_join is invoked whenver someone joins the room.
   room.on("member_join", member => {
     let joinMessage = (member.clientData.name += " joined");
-    joinMessage += String.fromCharCode(13, 10);
+    joinMessage += String.fromCharCode(13, 10); // line break
     document.getElementById("notificationsBox").value += joinMessage;
   });
 
@@ -64,6 +65,7 @@ drone.on("open", error => {
     let leftMessage = (member.clientData.name += " left");
     leftMessage += String.fromCharCode(13, 10);
     document.getElementById("notificationsBox").value += leftMessage;
+    console.log(remoteVideo)
   });
 
   room.on("message", message => {
