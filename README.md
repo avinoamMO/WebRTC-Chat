@@ -1,5 +1,6 @@
 # WebRTC Chat
 
+[![CI](https://github.com/avinoamMO/WebRTC-Chat/actions/workflows/ci.yml/badge.svg)](https://github.com/avinoamMO/WebRTC-Chat/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/avinoamMO/WebRTC-Chat?style=flat-square)](https://github.com/avinoamMO/WebRTC-Chat/stargazers)
 ![WebRTC](https://img.shields.io/badge/WebRTC-P2P-brightgreen)
