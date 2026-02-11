@@ -1,0 +1,29 @@
+{
+  "name": "webrtc-chat",
+  "version": "1.0.0",
+  "description": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) ![WebRTC](https://img.shields.io/badge/WebRTC-P2P-brightgreen) ![Vanilla JS](https://img.shields.io/badge/JavaScript-Vanilla-yellow) ![No Backend](https://img.shields.io/badge/Backend-None-lightgrey)",
+  "main": "script.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "jest --verbose",
+    "test:coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avinoamMO/WebRTC-Chat.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/avinoamMO/WebRTC-Chat/issues"
+  },
+  "homepage": "https://github.com/avinoamMO/WebRTC-Chat#readme",
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0"
+  }
+}
