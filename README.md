@@ -1,6 +1,7 @@
 # WebRTC Chat
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/avinoamMO/WebRTC-Chat?style=flat-square)](https://github.com/avinoamMO/WebRTC-Chat/stargazers)
 ![WebRTC](https://img.shields.io/badge/WebRTC-P2P-brightgreen)
 ![Vanilla JS](https://img.shields.io/badge/JavaScript-Vanilla-yellow)
 ![No Backend](https://img.shields.io/badge/Backend-None-lightgrey)
