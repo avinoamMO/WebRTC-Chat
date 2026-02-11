@@ -1,38 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <script
-      type="text/javascript"
-      src="https://cdn.scaledrone.com/scaledrone.min.js"
-    ></script>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebRTC Chat - P2P Video, Audio &amp; Text</title>
+    <meta name="description" content="Peer-to-peer video, audio, and text chat powered by WebRTC. No server required for media — just open-source, real-time communication." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="container">
-      <div class="remoteVideo">
-        <div class="header-title">Peer</div>
-        <video id="remoteVideo" height="50px" autoplay></video>
-      </div>
-      <div class="localVideo">
-        <div class="header-title">Local</div>
-        <video id="localVideo" autoplay muted></video>
-      </div>
-      <div class="notificationsBox">
-        <div class="header-title">Notifications</div>
-        <textarea readonly id="notificationsBox"></textarea>
-      </div>
-      <div class="chatBox">
-        <div class="header-title">Chat Box</div>
-        <textarea readonly id="chatBox"></textarea>
-        <input
-          type="text"
-          id="chat_text_input"
-          placeholder="Send a message.."
-        /><button id="sendMsgBtn" onclick="sendChatMessage()">Send</button>
+
+    <!-- ========== Landing / Join Screen ========== -->
+    <div id="landing" class="landing">
+      <div class="landing-card">
+        <div class="landing-logo">&#128225;</div>
+        <h1>WebRTC Chat</h1>
+        <p class="tagline">Peer-to-peer video, audio &amp; text — no middleman</p>
+
+        <label for="roomInput">Room Name</label>
+        <input type="text" id="roomInput" placeholder="e.g. friday-standup" autocomplete="off" />
+
+        <label for="nameInput">Your Name</label>
+        <input type="text" id="nameInput" placeholder="e.g. Avi" autocomplete="off" />
+
+        <button id="joinBtn" class="btn-primary">Join Room</button>
+
+        <div class="features">
+          <span class="feature-tag">Video</span>
+          <span class="feature-tag">Audio</span>
+          <span class="feature-tag">Text Chat</span>
+          <span class="feature-tag">Screen Share</span>
+          <span class="feature-tag">P2P</span>
+        </div>
       </div>
     </div>
+
+    <!-- ========== Main App (hidden until join) ========== -->
+    <div id="app" class="app">
+
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <span class="topbar-brand">WebRTC Chat</span>
+          <div class="topbar-room">
+            Room: <code id="roomLabel">—</code>
+            <button class="btn-copy" id="copyLinkBtn" title="Copy room link">&#128203;</button>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="connection-quality" id="qualityIndicator" title="Connection quality">
+            <div class="quality-bar"></div>
+            <div class="quality-bar"></div>
+            <div class="quality-bar"></div>
+          </div>
+          <div class="status-indicator">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Connecting</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+
+        <!-- Video Area -->
+        <div class="video-area" id="videoArea">
+          <div class="video-grid">
+            <!-- Remote Video -->
+            <div class="video-wrapper remote" id="remoteVideoWrapper">
+              <video id="remoteVideo" autoplay playsinline></video>
+              <span class="video-label" id="remoteLabel">Peer</span>
+              <div class="video-placeholder" id="remotePlaceholder">
+                <div class="icon">&#128100;</div>
+                <p>Waiting for peer to join...</p>
+              </div>
+            </div>
+            <!-- Local Video (picture-in-picture overlay) -->
+            <div class="video-wrapper local" id="localVideoWrapper">
+              <video id="localVideo" autoplay muted playsinline></video>
+              <span class="video-label" id="localLabel">You</span>
+            </div>
+          </div>
+
+          <!-- Fullscreen Button -->
+          <button class="media-btn btn-fullscreen" id="fullscreenBtn" title="Fullscreen">
+            <span>&#x26F6;</span>
+            <span class="tooltip">Fullscreen</span>
+          </button>
+
+          <!-- Media Controls -->
+          <div class="media-controls">
+            <button class="media-btn" id="toggleAudioBtn" title="Mute / Unmute">
+              <span id="audioIcon">&#128265;</span>
+              <span class="tooltip" id="audioTooltip">Mute</span>
+            </button>
+            <button class="media-btn" id="toggleVideoBtn" title="Camera On / Off">
+              <span id="videoIcon">&#127909;</span>
+              <span class="tooltip" id="videoTooltip">Stop Video</span>
+            </button>
+            <button class="media-btn screen-share" id="screenShareBtn" title="Share Screen">
+              <span id="screenIcon">&#128433;</span>
+              <span class="tooltip" id="screenTooltip">Share Screen</span>
+            </button>
+            <button class="media-btn end-call" id="endCallBtn" title="Leave Call">
+              <span>&#128222;</span>
+              <span class="tooltip">Leave</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Sidebar -->
+        <div class="chat-sidebar" id="chatSidebar">
+          <div class="chat-header">
+            <h3>Chat</h3>
+            <button class="chat-toggle" id="chatToggleBtn" title="Toggle chat">&#10005;</button>
+          </div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" />
+            <button class="btn-send" id="sendBtn">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ScaleDrone SDK -->
+    <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
